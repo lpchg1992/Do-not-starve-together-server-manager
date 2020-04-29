@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}dst玩家权限设置{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<article class="post">
+    <p><a class="action" href="{{ url_for('api.cds', mclass='adminlist') }}">增加管理员</a></p>
+    <p><a class="action" href="{{ url_for('api.cds', mclass='blocklist') }}">添加黑名单</a></p>
+    <p><a class="action" href="{{ url_for('api.cds', mclass='whitelist') }}">添加白名单</a></p>
+</article>
+<hr>
+{% endblock %}

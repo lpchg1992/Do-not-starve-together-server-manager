@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="120.77.168.57" uuid="dadfeaeb-062e-4fd3-8f5e-47fb054d5547">
+      <driver-ref>mariadb</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mariadb://120.77.168.57:3306/dst_api</jdbc-url>
+    </data-source>
+  </component>
+</project>

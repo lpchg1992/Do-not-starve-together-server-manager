@@ -1,0 +1,55 @@
+{% extends 'basic.html' %}
+{% block title %}Mod管理{% endblock %}
+	<div class="jumbotron">
+        {% block jumbotron %}
+	  <h1 class="display-4">Mod库管理</h1>
+	    {% endblock %}
+    {% block content %}
+		<form method="post">
+  <div class="form-group">
+    <label for="modurl">Mod URL链接</label>
+    <input class="form-control" id="modurl" name="modurl" placeholder="Mod URL链接">
+  </div>
+	<div class="form-group">
+    <label for="modname">Mod 名称</label>
+    <input class="form-control" id="modname" name="modname" placeholder="mod 名称">
+  </div>
+  <button type="submit" class="btn btn-primary">提交</button>
+</form>
+<hr class="my-4">
+	  <table class="table table-striped table-dark text-lg-center ">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">名称</th>
+      <th scope="col">状态</th>
+      <th scope="col">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+	  {% for i in mods %}
+    <tr>
+      <th scope="row">1</th>
+      <td><ul></ul>{{ i['mod_name'] }}</td>
+        {% if i['mod_ban'] %}
+      <td><ul></ul>可用</td>
+        {% elif not i['mod_ban'] %}
+        <td><ul></ul>禁用</td>
+        {% endif %}
+      <td>
+		  <ul class="list-inline">
+			  <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="{{ url_for('api.modm', modid=i['mod_id'], ban=0, activate=0, delete=1) }}">删除</a></li>
+              {% if i['mod_ban'] %}
+			  <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="{{ url_for('api.modm', modid=i['mod_id'], activate=0, delete=0, ban=1) }}">禁用</a></li>
+			  {% elif not i['mod_ban'] %}
+              <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="{{ url_for('api.modm', modid=i['mod_id'], ban=0, delete=0, activate=1) }}">启用</a></li>
+              {% endif %}
+		</ul>
+        </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+  </div>
+{% endblock %}

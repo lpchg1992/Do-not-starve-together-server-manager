@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>无标题文档</title>
+<link href="../static/css/bootstrap-4.3.1.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<div class="container">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark"> <a class="navbar-brand" href="#">平成游戏&nbsp; &nbsp;| </a><a class="navbar-brand" href="#">饥荒联机版服务器管理&nbsp;</a>
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent1" aria-controls="navbarSupportedContent1" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span></button>
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent1">
+	    <ul class="navbar-nav mr-auto">
+	      <li class="nav-item active"> <a class="nav-link" href="#">欢迎：{用户名} <span class="sr-only">(current)</span></a> </li>
+			<li class="nav-item active"> <a class="nav-link" href="#">管理中：{服务数量} <span class="sr-only">(current)</span></a> </li>
+			<li class="nav-item active"> <a class="nav-link" href="#">运行中：{服务数量} <span class="sr-only">(current)</span></a> </li>
+	       
+        </ul>
+      </div>
+  </nav>
+	<div class="jumbotron">
+	  <h1 class="display-4">管理 | 当前：</h1>
+	  <hr class="my-4">
+	<p class="lead text-lg-left">游戏用户权限管理</p>
+	<ul class="list-inline">
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">管理员名单</button>
+		</li>
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">黑名单</button>
+		</li>
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">白名单</button>
+		</li>
+	</ul>
+	<p class="lead text-lg-left">游戏基础管理</p>
+	<ul class="list-inline">
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">游戏运行报告</button>
+		</li>
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">备份游戏</button>
+		</li>
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">添加Mod</button>
+		</li>
+	</ul>
+	<p class="lead text-lg-left">高级管理</p>
+	<ul class="list-inline">
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">恢复游戏备份</button>
+		</li>
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">初始化服务器</button>
+		</li>
+		<li class="list-inline-item">
+		  <button type="button" disabled class="btn btn-dark" data-toggle="tooltip" data-placement="top" title="暂不支持">删除Mod</button>
+		</li>
+	</ul>
+  </div>
+</div>
+<script src="../static/js/jquery-3.3.1.min.js"></script>
+<script src="../static/js/popper.min.js"></script>
+<script src="../static/js/bootstrap-4.3.1.js"></script>
+</body>
+</html>

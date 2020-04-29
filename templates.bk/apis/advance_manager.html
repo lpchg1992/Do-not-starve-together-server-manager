@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}游戏服务器管理{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<article class="post">
+    <p><a class="action" href="{{ url_for('api.smng', cmd_='server_infos dsls') }}">查询运行状态</a></p>
+    <p><a class="action" href="{{ url_for('api.start_dst_server') }}">启动游戏服务</a></p>
+    <p><a class="action" href="{{ url_for('api.stop_dst_server') }}">关闭游戏服务</a></p>
+    <p><a class="action" href="{{ url_for('api.smng', cmd_='server_log_dir ') }}">生成日志</a></p>
+    <p><a class="action" href="{{ url_for('api.smng', cmd_='backup_servers ') }}">备份游戏</a></p>
+</article>
+<hr>
+{% endblock %}

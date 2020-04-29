@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{% endblock %}-平成游戏</title>
+<link href="../static/css/bootstrap-4.3.1.css" rel="stylesheet" type="text/css">
+<link href="../static/jQueryAssets/jquery.ui.core.min.css" rel="stylesheet" type="text/css">
+<link href="../static/jQueryAssets/jquery.ui.theme.min.css" rel="stylesheet" type="text/css">
+<link href="../static/jQueryAssets/jquery.ui.progressbar.min.css" rel="stylesheet" type="text/css">
+<script src="../static/jQueryAssets/jquery-1.11.1.min.js"></script>
+<script src="../static/jQueryAssets/jquery.ui-1.10.4.progressbar.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark"> <a class="navbar-brand" target="_blank" href="imlpc.com">LpcDoc&nbsp; &nbsp;| </a><a class="navbar-brand" href="{{ url_for('index') }}">饥荒联机版服务器管理&nbsp;</a>
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent1" aria-controls="navbarSupportedContent1" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span></button>
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent1">
+          {% if g.user %}
+	    <ul class="navbar-nav mr-auto">
+		  <div class="btn-group">
+			  <button type="button" class="btn btn-dark">欢迎：{{ g.user['username'] }}</button>
+			  <button type="button" class="btn btn-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="sr-only">Toggle Dropdown</span> </button>
+			  <div class="dropdown-menu">
+			    <h6 class="dropdown-header">用户等级：{{ g.user['level'] }}</h6>
+			    <a class="dropdown-item" href="#">登出</a>
+                  <a class="dropdown-item disabled" href="#" >用户中心</a>
+                  {% if userlevel >= 3 %}
+                  <a class="dropdown-item" href="#">管理中心</a>
+                      {% endif %}
+			    <div class="dropdown-divider"></div>
+			    <a class="dropdown-item bg-info" href="#">我的消息 <span class="badge badge-light align-content-center">功能测试中</span></a> </div>
+		  </div>
+			{% if userlevel >= 3 %}
+            <li class="nav-item active"> <a class="nav-link" href="#">管理中：{{ serverstatus[0] }} <span class="sr-only">(current)</span></a> </li>
+			<li class="nav-item active"> <a class="nav-link" href="#">运行中：{{ serverstatus[1] }} <span class="sr-only">(current)</span></a> </li>
+                {% endif %}
+        </ul>
+          {% endif %}
+      </div>
+  </nav>
+	<div class="jumbotron">
+        {% block jumbotron %}{% endblock %}
+		<hr class="my-4">
+    {% for message in get_flashed_messages() %}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+   <strong>Tips:</strong> {{ message }}
+   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+   <span aria-hidden="true">&times;</span>
+   </button>
+</div>
+    {% endfor %}
+	<hr class="my-4">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+<script src="../static/js/jquery-3.3.1.min.js"></script>
+<script src="../static/js/popper.min.js"></script>
+<script src="../static/js/bootstrap-4.3.1.js"></script>
+</body>
+</html>

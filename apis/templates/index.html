@@ -1,0 +1,62 @@
+{% extends 'basic.html' %}
+  <div class="jumbotron">
+      {% block jumbotron %}
+	  <h1 class="display-4">Hello, 朋友们！</h1>
+	  <p class="lead">我们致力于用游戏丰富生活，本网站仅用于游戏管理。欢迎联系：<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=e23342790f21b4ecf1ec6612a10a3764ef649717ea8a46650f1f352fb193a5c0"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="LPC-饥荒服务器交流群" title="LPC-饥荒服务器交流群"></a></p>
+	  <p class="lead">目前主要关注《饥荒：联机版游戏》</p>
+      {% endblock %}
+      {% block content %}
+	  <div class="alert-info clearfix">
+  <button class="btn btn-primary float-left" type="button" data-toggle="collapse" data-target="#multiCollapseExample1" aria-expanded="false" aria-controls="multiCollapseExample1">登陆</button>
+		  <button class="btn btn-primary float-right" type="button" data-toggle="collapse" data-target="#multiCollapseExample2" aria-expanded="false" aria-controls="multiCollapseExample2">注册</button>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="collapse multi-collapse" id="multiCollapseExample1">
+      <div class="card card-body">
+        <form id="form1" action="{{ url_for('auth.login') }}" method="post">
+	  <div class="form-group">
+	    <label for="username">用户名</label>
+	    <input class="form-control" id="username" name="username" placeholder="用户名" required>
+	    </div>
+	  <div class="form-group">
+	    <label for="password">密码</label>
+	    <input type="password" class="form-control" id="password" name="password" placeholder="密码" required>
+    </div>
+	  <button type="submit" class="btn btn-primary" >登陆</button>
+  </form>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="collapse multi-collapse" id="multiCollapseExample2">
+      <div class="card card-body">
+       <p class="lead text-center ">欢迎注册！经常一起玩游戏即可获取注册码。</p>
+    <form method="post">
+        <input id="whichr" name="whichr" hidden value="r">
+		<div class="form-group">
+	    <label for="exampleInputEmail2">邀请码</label>
+	    <input type="email" class="form-control" id="exampleInputEmail2" aria-describedby="emailHelp" placeholder="邀请码">
+      </div>
+	  <div class="form-group">
+	    <label for="exampleInputEmail2">用户名</label>
+	    <input type="email" class="form-control" id="exampleInputEmail2" aria-describedby="emailHelp" placeholder="用户名">
+          <label for="username">KU_码</label>
+	    <input class="form-control" id="kucode" name="kucode" placeholder="方便增加白名单，管理员" required>
+          <label for="username">steam昵称</label>
+	    <input class="form-control" id="steamnickname" name="steamnickname" placeholder="方便沟通，请原样填写" required>
+      </div>
+	  <div class="form-group">
+	    <label for="exampleInputPassword1">密码</label>
+	    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="密码">
+    </div>
+		<p class="text-center">
+      <button type="submit" class="btn btn-light">注册</button>
+    </p>
+</form>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+{% endblock %}

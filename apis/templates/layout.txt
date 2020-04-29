@@ -1,0 +1,12 @@
+功能 对应页面：
+basic.html
+注册 登陆 ：index.html
+服务器列表：manager_index.html
+已经存在的单服务器管理功能列表或操作：server_manager.html
+    ——添加Mod server_mod_manager.html
+    ——游戏用户权限管理：game_user_auth_list.html
+    ——游戏运行报告：server_report.html
+    ——初始化服务器：initial_server.html
+    ——游戏备份列表：backup_list.html
+Mod管理：mod_manager.html
+

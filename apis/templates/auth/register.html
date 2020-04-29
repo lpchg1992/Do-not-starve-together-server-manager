@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}注册{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    <h3>请使用steamID作为用户名</h3>
+    <label for="username">用户名</label>
+    <input name="username" id="username" required>
+    <label for="password">密码</label>
+    <input type="password" name="password" id="password" required>
+    <label for="password">注册码</label>
+    <input value="请输入注册码" name="inviteCode" id="inviteCode" required>
+    <input type="submit" value="注册">
+</form>
+{% endblock %}
