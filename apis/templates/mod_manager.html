@@ -20,7 +20,6 @@
 	  <table class="table table-striped table-dark text-lg-center ">
   <thead>
     <tr>
-      <th scope="col">#</th>
       <th scope="col">名称</th>
       <th scope="col">状态</th>
       <th scope="col">操作</th>
@@ -29,12 +28,11 @@
   <tbody>
 	  {% for i in mods %}
     <tr>
-      <th scope="row">1</th>
       <td><ul></ul>{{ i['mod_name'] }}</td>
         {% if i['mod_ban'] %}
-      <td><ul></ul>可用</td>
+      <td class="bg-info"><ul></ul>可用</td>
         {% elif not i['mod_ban'] %}
-        <td><ul></ul>禁用</td>
+        <td class="bg-danger"><ul></ul>禁用</td>
         {% endif %}
       <td>
 		  <ul class="list-inline">

@@ -139,7 +139,7 @@ def update_file_lines(file_dir, old_line_patterns, new_lines, match_or_search=1)
 
 
 class SocketFunc:
-    def __init__(self, addr_p=('120.77.152.132', 11007), cmd=None):
+    def __init__(self, addr_p=('120.77.152.132', 12000), cmd=None):
         self.addr_p = addr_p
         self.cmd = cmd
 
@@ -163,7 +163,7 @@ class SocketFunc:
         if E:
             s_ssl.shutdown(0)
             s_ssl.close()
-            return E
+            return f'A error. Details:{E}'
         else:
             s_ssl.shutdown(0)
             s_ssl.close()

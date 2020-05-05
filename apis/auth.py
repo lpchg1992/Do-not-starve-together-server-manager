@@ -102,6 +102,7 @@ def load_logged_in_user():
             if i:
                 g.dsls.append({'id': i.split(' ')[0], 'statu': i.split(' ')[1], 'name': i.split(' ')[2]})
 
+
 @bp.route('/logout')
 def logout():
     session.clear()

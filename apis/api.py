@@ -30,7 +30,6 @@ def index():
 @login_required
 def manager_index():
     userlevel_ = int(g.user['level'])
-
     return render_template('manager_index.html', userlevel=userlevel_)
 
 
@@ -59,12 +58,15 @@ def stop_dst_server(gid):
 @bp.route('/server_manager/<gid>/<gname>')
 @login_required
 def server_manager(gid, gname):
-    return render_template('server_manager.html', name=gname, id=gid, userlevel=int(g.user['level']))
+    return render_template('server_manager.html', gname=gname, gid=gid, userlevel=int(g.user['level']))
 
 
-@bp.route('/game_user_auth_list/<cls_>/<gname>/<gid>')
+@bp.route('/game_user_auth_list/<cls_>/<gname>/<gid>', methods=('POST', 'GET'))
 @login_required
 def game_user_auth_list(cls_, gname, gid):
+    session['cls_'] = cls_
+    session['gname'] = gname
+    session['gid'] = gid
     cls = cls_
     cls___ = None
     if cls == 'adminlist':
@@ -74,24 +76,74 @@ def game_user_auth_list(cls_, gname, gid):
     elif cls == 'blocklist':
         cls___ = '黑名单'
 
-    listNow = []
+    cmd__ = f'guid@get:{cls}@{g.user["level"]}@{gname}'
+    listNow_ = SocketFunc(cmd=cmd__).client_side()
+    listNow = [x.strip('\n') for x in listNow_.strip().split(' ') if x]
 
     recentPlayer = []
 
     if request.method == 'POST':
         text = request.form['text']
-        info = None
         if not text and not cls:
             error = 'Content Should not be empty!'
             flash(error)
         else:
-            info = 'Please wait...'
-            flash(info)
             cmdS = f"guid@{cls}:{text}@{g.user['level']}@{gname}"
             info = SocketFunc(cmd=cmdS).client_side()
-        if info:
-            flash(info)
-    return render_template('game_user_auth_list.html', name=gname, cls__=cls___, userlevel=g.user['level'])
+            if info:
+                flash(info)
+            return redirect(url_for('api.game_user_auth_list', cls_=cls, gname=gname, gid=gid))
+    return render_template('game_user_auth_list.html', cls_=cls, listnow=listNow, name=gname, cls__=cls___, userlevel=g.user['level'])
+
+
+@bp.route('/guid/<kuid>/<cls>/<gname>')
+@login_required
+def guid(kuid, cls, gname):
+    cmd__ = f'guid@remove:{cls} {kuid}@{g.user["level"]}@{gname}'
+    info = SocketFunc(cmd=cmd__).client_side()
+    flash(info)
+    cls = session['cls_']
+    gname = session['gname']
+    gid = session['gid']
+    return redirect(url_for('api.game_user_auth_list', cls_=cls, gname=gname, gid=gid))
+
+
+@bp.route('/server_mod_manager/<gname>/<gid>')
+@login_required
+def server_mod_manager(gname, gid):
+    cmd__ = f'smodm@mods_not_use:{gname}# @{g.user["level"]}'
+    mixInfos = SocketFunc(cmd=cmd__).client_side().split('!!')
+    nUse = []
+    for i in mixInfos:
+        i_ = i.split('^^')
+        if i_[0] and i_[1]:
+            nUse.append({'id': i_[0], 'name': i_[1]})
+
+    cmd__ = f'smodm@mods_in_use:{gname}# @{g.user["level"]}'
+    mixInfos = SocketFunc(cmd=cmd__).client_side().split('!!')[1].split('^^')
+    use = ''
+    for j in mixInfos:
+        if j:
+            use += f'{j} | '
+
+    return render_template('server_mod_manager.html', userlevel=g.user['level'], gname=gname, gid=gid, nuse=nUse, use=use)
+
+
+@bp.route('/smodm/<gname>/<gid>/<mod_id>')
+@login_required
+def smodm(gname, gid, mod_id):
+    pass
+
+
+@bp.route('/manage_center')
+@login_required
+def manage_center():
+    if int(g.user['level']) >= 2:
+        return render_template('manage_center.html', userlevel=g.user['level'])
+    else:
+        info = 'Invalid Authority.'
+        flash(info)
+        return redirect(url_for('api.manager_index'))
 
 
 @bp.route('/mod_manager', methods=('GET', 'POST'))
@@ -135,18 +187,6 @@ def modm(modid, delete, activate, ban):
     if info:
         flash(info)
     return redirect(url_for('api.mod_manager'))
-
-
-@bp.route('/smng/<cmd_>')
-@login_required
-def smng(cmd_):
-    cmds = cmd_.split(' ')
-    info = 'Please wait...'
-    flash(info)
-    cmdS = f"smng@{cmds[0]}:{cmds[1]}@{g.user['level']}"
-    info = SocketFunc(cmd=cmdS).client_side()
-    flash(info)
-    return redirect(url_for('api.advance_manager'))
 
 
 

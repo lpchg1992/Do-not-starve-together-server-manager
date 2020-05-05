@@ -1,0 +1,26 @@
+{% extends 'basic.html' %}
+	<div class="jumbotron">
+        {% block jumbotron %}
+	  <h1 class="display-4">管理中心</h1>
+	  {% endblock %}
+    {% block content %}
+	<p class="lead text-lg-left">模板和库管理</p>
+	<ul class="list-inline">
+		<li class="list-inline-item">
+		  <a type="button" class="btn btn-dark" href="{{ url_for('api.mod_manager') }}">mod库管理</a>
+		</li>
+	</ul>
+	<p class="lead text-lg-left">游戏创建工具</p>
+	<ul class="list-inline">
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">pass</button>
+		</li>
+	</ul>
+	<p class="lead text-lg-left">网站管理</p>
+	<ul class="list-inline">
+		<li class="list-inline-item">
+		  <button type="button" class="btn btn-dark">pass</button>
+		</li>
+	</ul>
+  </div>
+{% endblock %}

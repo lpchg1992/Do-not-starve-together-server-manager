@@ -1,0 +1,30 @@
+{% extends 'basic.html' %}
+{% block title %}日志管理{% endblock %}
+	<div class="jumbotron">
+        {% block jumbotron %}
+	  <h1 class="display-4">日志列表 | 当前：{{ gname }}</h1>
+        {% endblock %}
+	  {% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">创建时间</th>
+		<th scope="col">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mark</td>
+	<td>
+		<ul class="list-inline">
+			  <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="{{ url_for('api.modm', modid=i['mod_id'], ban=0, activate=0, delete=1) }}">解析用户</a></li>
+			  <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="#">解析运行信息</a></li>
+              <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="#">删除</a></li>
+		</ul>
+		</td>
+    </tr>
+  </tbody>
+</table>
+
+  </div>
+{% endblock %}

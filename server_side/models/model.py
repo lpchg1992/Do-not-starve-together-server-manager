@@ -11,7 +11,8 @@ import ssl
 
 from socket import socket, AF_INET, SOCK_STREAM
 from models.db import commit_sql, get_db_dict
-
+# from server_side.models.db import commit_sql, get_db_dict
+from flask import session
 
 def generate_random():
     """
@@ -33,9 +34,9 @@ def generate_random():
 
 def str_not_in_file(str, dir):
     """
-    :param str a combine of strings split by space that you want to judge if it is already in a file line.
-    :param dir the dir of the file that you want to search.
-    :return: a list of strings that not in the file.
+    :param str: a combine of strings split by space that you want to judge if it is already in a file line.
+    :param dir: the dir of the file that you want to search.
+    :return: a: list of strings that not in the file.
     """
     with open(dir, 'r') as f_:
         dirList = [lines.strip('\n ') for lines in f_]
@@ -106,30 +107,34 @@ def update_file_lines(file_dir, old_line_patterns, new_lines, match_or_search=1)
     matchOrSearch = match_or_search
     patternList = old_line_patterns.split('()')
     newLine = new_lines.split('@@')
-    fileList = fileDir.readlines()
+    with open(fileDir, 'r') as f:
+        fileList = f.readlines()
     fLIndexN = 0
     nLIndexN = 0
     if os.path.isfile(fileDir):
         # save changes to the list.
         for p in patternList:
-            for i in fileList:
-                if matchOrSearch == 1:
-                    if re.match(p, i.strip('\n')):
-                        fileList[fLIndexN] = newLine[nLIndexN]
-                        fLIndexN += 1
-                    else:
-                        fLIndexN += 1
-                else:
-                    if re.search(p, i.strip('\n')):
-                        fileList[fLIndexN] = newLine[nLIndexN]
-                        fLIndexN += 1
-                    else:
-                        fLIndexN += 1
+            if p:
+                for i in fileList:
+                    if i:
+                        if matchOrSearch == 1:
+                            if re.match(p, i.strip('\n')):
+                                fileList[fLIndexN] = newLine[nLIndexN]
+                                fLIndexN += 1
+                            else:
+                                fLIndexN += 1
+                        else:
+                            if re.search(p, i.strip('\n')):
+                                fileList[fLIndexN] = newLine[nLIndexN]
+                                fLIndexN += 1
+                            else:
+                                fLIndexN += 1
             nLIndexN += 1
         # write the list to the file line by line.
         with open(fileDir, 'w') as f:
             for i in fileList:
-                f.write(i)
+                if i:
+                    f.write(i)
         info = 'Success!'
     else:
         info = 'Invalid file dir.'
@@ -231,34 +236,6 @@ class AdvanceServerManager:
         else:
             return None
 
-    def get_server_log(self):
-        """
-        Return a log file dir of a certain dst server.
-        :return: a dir of a log file
-        """
-        if not self.until:
-            self.until = datetime.datetime.now()
-        if not self.since:
-            self.since = self.until + datetime.timedelta(days=-1)
-        dir_ = '/root/server_side/logs'
-        dirList = []
-        if not self.targetServerId:
-            sList = self.dstServerLists
-        else:
-            sList = self.targetServerId
-        if sList and self.since and self.until:
-            for i in sList:
-                dirName = dir_ + '/' + '=' + i.name + '__' + f'{datetime.datetime.now()}'.split('.')[0] + '.log'
-                dirList.append(dirName)
-                logStr = i.logs(since=self.since, until=self.until)
-                logList = logStr.decode('utf-8').split('\n')
-                with open(dirName, 'w') as f:
-                    for t_ in logList:
-                        f.write(t_ + '\n')
-            return dirList
-        else:
-            return []
-
     def start_existed_server(self):
         """
         start existed server.
@@ -355,14 +332,53 @@ class AdvanceServerManager:
             text = str_not_in_file(self.userGameId, fileDir)
             with open(fileDir, 'a') as f:
                 for i in text:
-                    f.write(i + '\n')
-            info = 'Success!'
+                    if i:
+                        f.write(i + '\n')
+                        info = 'Success!'
+                    else:
+                        info = 'Error: Empty data!'
         else:
             info = 'No such identity type or no user game id!'
         return info
 
     def set_user_game_id_from_log(self):
         pass
+
+    def get_user_game_id(self):
+        if self.userGameIdClass == 'adminlist':
+            fileDir = self.baseDir + '/Cluster_1/adminlist.txt'
+        elif self.userGameIdClass == 'whitelist':
+            fileDir = self.baseDir + '/Cluster_1/whitelist.txt'
+        elif self.userGameIdClass == 'blocklist':
+            fileDir = self.baseDir + '/Cluster_1/blocklist.txt'
+        else:
+            fileDir = ''
+        listString = ''
+        if fileDir:
+            with open(fileDir, 'r') as f:
+                listIter = f.readlines()
+            for i in listIter:
+                listString += f'{i} '
+        return listString
+
+    def remove_user_game_id(self):
+        if self.userGameIdClass == 'adminlist':
+            fileDir = f'{self.clusterBaseDir}/adminlist.txt'
+        elif self.userGameIdClass == 'whitelist':
+            fileDir = f'{self.clusterBaseDir}/whitelist.txt'
+        elif self.userGameIdClass == 'blocklist':
+            fileDir = f'{self.clusterBaseDir}/blocklist.txt'
+        else:
+            fileDir = ''
+        idS = self.userGameId.split(' ')
+        patterns = ''
+        lines = ''
+        for i in idS:
+            if i:
+                patterns += f'{i}()'
+                lines += '@@'
+        info = update_file_lines(fileDir, patterns, lines, 2)
+        return info
 
     def set_cluster_config(self):
         """
@@ -390,8 +406,108 @@ class AdvanceServerManager:
         return info
 
 
+class ServerLogResolve(AdvanceServerManager):
+    def __init__(self, target_log):
+        """
+        server log resolve tools
+        :param target_log:a log dir path.
+        """
+        super().__init__()
+        self.targetLog = target_log
+
+    def get_server_log(self):
+        """
+        Return a log file dir of a certain dst server.
+        :return: a dir of a log file
+        """
+        if not self.until:
+            self.until = datetime.datetime.now()
+        if not self.since:
+            self.since = self.until + datetime.timedelta(days=-100)
+        dir_ = '/root/server_side/glogs'
+        dirList = []
+        if not self.targetServerId:
+            sList = self.dstServerLists
+        else:
+            sList = self.targetServerId
+        if sList and self.since and self.until:
+            for i in sList:
+                dirName = dir_ + '/' + i.name + '##' + f'{datetime.datetime.now()}'.split('.')[0] + '.log'
+                dirList.append(dirName)
+                logStr = i.logs(since=self.since, until=self.until)
+                logList = logStr.decode('utf-8').split('\n')
+                with open(dirName, 'w') as f:
+                    for t_ in logList:
+                        f.write(t_ + '\n')
+            return dirList
+        else:
+            return []
+
+    def get_log_dirs(self):
+        """
+        get game log dirs.
+        :return: a list contains several log paths
+        """
+        dir_ = '/root/server_side/glogs'
+        dirGenerator = os.walk(dir_)
+        pathList = []
+        for root, dirs, files in dirGenerator:
+            for i in files:
+                path_ = os.path.join(root, i)
+                pathList.append(path_)
+        return pathList
+
+    def resolve_game_log_user(self):
+        """
+        resolve game logs for login users.
+        :return: return game user login infos. contains: steamID, KU_code, role chosen.
+        """
+        userLoginList = []
+        userRoleList = []
+        if os.path.isfile(self.targetLog):
+            with open(self.targetLog) as f:
+                contentList = f.readlines()
+        for i in contentList:
+            if re.search('Client authenticated', i):
+                user = i.split(' ')
+                """
+                user[2]:steam nick name. user[1]:KU_code.
+                """
+                userInfos = "%s %s" % (user[2].strip('\n'), user[1].strip('()'))
+                userLoginList.append(userInfos)
+            if re.search('Spawn request', i):
+                """
+                user[3]steam nick name, user[1] the role.
+                """
+                user = i.split(' ')
+                userRole = '%s %s' % (user[3].strip("\n"), user[1])
+                userRoleList.append(userRole)
+        userStr = ''
+        for i in userLoginList:
+            for j in userRoleList:
+                if re.search(i.split(' ')[0], j.split(' ')[0]):
+                    userStr += f'{i} {j.split(" ")[1]}'
+                else:
+                    userStr += f'{i} '
+        return userStr
+
+    def resolve_game_log_chat(self):
+        """
+        resolve chat in log.
+        :return: a chat log.
+        """
+        pass
+
+    def resolve_log_stream(self):
+        """
+        resolve a log stream ogj.
+        :return:
+        """
+        pass
+
+
 class ModManager(AdvanceServerManager):
-    def __init__(self, mod_list='', mod_list_db='', mod_list_db_statue=''):
+    def __init__(self, mod_list='', mod_list_db='', mod_list_db_statue='', server_base_dir='DoNotStarveTogether'):
         """
         This Class is a mod manager.
         :param mod_list_db_statue: a string contains a mod's id and its statue that need to change.
@@ -400,12 +516,35 @@ class ModManager(AdvanceServerManager):
         :param mod_list_db: a string contains a mod's infos.
         It should be look like: 'modname&&modurl'
         """
-        super().__init__()
+        super().__init__(server_base_dir=server_base_dir)
         self.modLists = mod_list
         self.setUpFileDir = self.clusterBaseDir + '/mods/dedicated_server_mods_setup.lua'
         self.overridesFileDir = self.clusterBaseDir + '/Master/modoverrides.lua'
         self.modListDb = mod_list_db
         self.modListDbStatue = mod_list_db_statue
+
+    def list_mods_in_use(self):
+        """
+        :return: a list contains name and id. name split by '^^'.
+        """
+        with open(self.overridesFileDir, 'r') as f:
+            testList = f.readlines()
+        modListName = ''
+        modListId = ''
+        modIds = []
+        for i in testList:
+            if '["workshop-' in i:
+                modId = i.split('"')[1].split('-')[1]
+                modIds.append(modId)
+        db = get_db_dict()
+        for j in modIds:
+            db.execute('SELECT * FROM mods WHERE mod_id = %s', (j,))
+            result = db.fetchone()
+            if result:
+                modListName += f"{result['mod_name']}^^"
+                modListId += f"{result['mod_id']} "
+        db.close()
+        return [modListName, modListId]
 
     def add_mod(self):
         """

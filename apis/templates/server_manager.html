@@ -1,9 +1,10 @@
 {% extends 'basic.html' %}
 	<div class="jumbotron">
         {% block jumbotron %}
-	  <h1 class="display-4">管理 | 当前：{{ name }}</h1>
+	  <h1 class="display-4">管理 | 当前：{{ gname }}</h1>
 	  {% endblock %}
     {% block content %}
+    {% if userlevel >= 2 %}
 	<p class="lead text-lg-left">游戏用户权限管理</p>
 	<ul class="list-inline">
 		<li class="list-inline-item">
@@ -16,18 +17,22 @@
 		  <a type="button" class="btn btn-dark" href="{{ url_for('api.game_user_auth_list', cls_='whitelist', gname=name, gid=id) }}">白名单</a>
 		</li>
 	</ul>
+        {% endif %}
 	<p class="lead text-lg-left">游戏基础管理</p>
 	<ul class="list-inline">
 		<li class="list-inline-item">
 		  <button type="button" class="btn btn-dark">游戏运行报告</button>
 		</li>
+        {% if userlevel >= 2 %}
 		<li class="list-inline-item">
 		  <button type="button" class="btn btn-dark">备份游戏</button>
 		</li>
 		<li class="list-inline-item">
-		  <button type="button" class="btn btn-dark">添加Mod</button>
+		  <a type="button" class="btn btn-dark" href="{{ url_for('api.server_mod_manager', gname=gname, gid=gid)}}">添加Mod</a>
 		</li>
 	</ul>
+        {% endif %}
+        {% if userlevel >= 3 %}
 	<p class="lead text-lg-left">高级管理</p>
 	<ul class="list-inline">
 		<li class="list-inline-item">
@@ -37,8 +42,12 @@
 		  <button type="button" class="btn btn-dark">初始化服务器</button>
 		</li>
 		<li class="list-inline-item">
+		  <a type="button" class="btn btn-dark" href="#">日志管理</a>
+		</li>
+		<li class="list-inline-item">
 		  <button type="button" disabled class="btn btn-dark" data-toggle="tooltip" data-placement="top" title="暂不支持">删除Mod</button>
 		</li>
 	</ul>
+     {% endif %}
   </div>
 {% endblock %}

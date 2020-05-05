@@ -1,64 +1,31 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>无标题文档</title>
-<link href="../static/css/bootstrap-4.3.1.css" rel="stylesheet" type="text/css">
-</head>
-
-<body>
-<div class="container">
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark"> <a class="navbar-brand" href="#">平成游戏&nbsp; &nbsp;| </a><a class="navbar-brand" href="#">饥荒联机版服务器管理&nbsp;</a>
-	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent1" aria-controls="navbarSupportedContent1" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span></button>
-	  <div class="collapse navbar-collapse" id="navbarSupportedContent1">
-	    <ul class="navbar-nav mr-auto">
-	      <li class="nav-item active"> <a class="nav-link" href="#">欢迎：{用户名} <span class="sr-only">(current)</span></a> </li>
-			<li class="nav-item active"> <a class="nav-link" href="#">管理中：{服务数量} <span class="sr-only">(current)</span></a> </li>
-			<li class="nav-item active"> <a class="nav-link" href="#">运行中：{服务数量} <span class="sr-only">(current)</span></a> </li>
-	        
-        </ul>
-      </div>
-  </nav>
+{% extends 'basic.html' %}
 	<div class="jumbotron">
-	  <h1 class="display-4">添加Mod | 当前：</h1>
-	  <hr class="my-4">
+        {% block jumbotron %}
+	  <h1 class="display-4">添加Mod | 当前：{{ gname }}</h1>
+	  {% endblock %}
+    {% block content %}
+        <p class="lead">已经添加的mod：{{ use }}</p>
+		<p class="lead">*仅显示未被管理员禁用的Mod</p>
 	  <table class="table table-striped table-dark text-lg-center ">
   <thead>
     <tr>
-      <th scope="col">#</th>
       <th scope="col">可添加Mod</th>
       <th scope="col">操作</th>
     </tr>
   </thead>
   <tbody>
+  {% for i in nuse %}
     <tr>
-      <th scope="row">1</th>
-      <td><ul></ul>Mark</td>
+      <td><ul></ul>{{ i['name'] }}</td>
       <td>
 		  <ul class="list-inline">
-			  <li class="list-inline-item"><button type="button" class="btn btn-secondary">添加</button></li>
+			  <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="{{ i['id'] }}">添加</a></li>
 		</ul>
         </td>
     </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>@twitter</td>
-    </tr>
+  {% endfor %}
   </tbody>
 </table>
 
   </div>
-</div>
-<script src="../static/js/jquery-3.3.1.min.js"></script>
-<script src="../static/js/popper.min.js"></script>
-<script src="../static/js/bootstrap-4.3.1.js"></script>
-</body>
-</html>
+{% endblock %}

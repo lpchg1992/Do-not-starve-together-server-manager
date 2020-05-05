@@ -2,5 +2,7 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/apis/api.py" dialect="MariaDB" />
+    <file url="file://$PROJECT_DIR$/server_side/models/model.py" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/server_side/server.py" dialect="GenericSQL" />
   </component>
 </project>
