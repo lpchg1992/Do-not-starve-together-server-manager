@@ -32,7 +32,7 @@
         {% if userlevel >= 3 %}
       <td>
 		  <ul class="list-inline">
-			  <li class="list-inline-item"><a type="button" class="btn btn-secondary" href="{{ url_for('api.guid', kuid=i, cls=cls_, gname=name) }}">删除</a></li>
+			  <li class="list-inline-item"><button type="button" data-toggle="modal" data-target="#waittip" class="btn btn-secondary" onclick="location.href='{{ url_for('api.guid', kuid=i, cls=cls_, gname=name) }}'">删除</button></li>
 		</ul>
         </td>
     {% endif %}
@@ -40,7 +40,7 @@
   {% endfor %}
   </tbody>
 </table>
-<p>最近登陆游戏玩家</p>
+<p>最近登陆游戏玩家|功能完善中</p>
 	  <table class="table table-striped table-dark text-lg-center ">
   <thead>
     <tr>
@@ -57,7 +57,7 @@
       <td><ul></ul>Otto</td>
       <td>
 		  <ul class="list-inline">
-			  <li class="list-inline-item"><button type="button" class="btn btn-secondary">增加</button></li>
+			  <li class="list-inline-item"><button disabled data-toggle="modal" data-target="#waittip" type="button" class="btn btn-secondary">增加</button></li>
 		</ul>
         </td>
     </tr>

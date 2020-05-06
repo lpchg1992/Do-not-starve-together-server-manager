@@ -1,80 +1,44 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>无标题文档</title>
-<link href="../static/css/bootstrap-4.3.1.css" rel="stylesheet" type="text/css">
-<link href="../static/jQueryAssets/jquery.ui.core.min.css" rel="stylesheet" type="text/css">
-<link href="../static/jQueryAssets/jquery.ui.theme.min.css" rel="stylesheet" type="text/css">
-<link href="../static/jQueryAssets/jquery.ui.progressbar.min.css" rel="stylesheet" type="text/css">
-<script src="../static/jQueryAssets/jquery-1.11.1.min.js"></script>
-<script src="../static/jQueryAssets/jquery.ui-1.10.4.progressbar.min.js"></script>
-</head>
-
-<body>
-<div class="container">
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark"> <a class="navbar-brand" href="#">平成游戏&nbsp; &nbsp;| </a><a class="navbar-brand" href="#">饥荒联机版服务器管理&nbsp;</a>
-	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent1" aria-controls="navbarSupportedContent1" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span></button>
-	  <div class="collapse navbar-collapse" id="navbarSupportedContent1">
-	    <ul class="navbar-nav mr-auto">
-	      <li class="nav-item active"> <a class="nav-link" href="#">欢迎：{用户名} <span class="sr-only">(current)</span></a> </li>
-			<li class="nav-item active"> <a class="nav-link" href="#">管理中：{服务数量} <span class="sr-only">(current)</span></a> </li>
-			<li class="nav-item active"> <a class="nav-link" href="#">运行中：{服务数量} <span class="sr-only">(current)</span></a> </li>
-        </ul>
-      </div>
-  </nav>
+{% extends 'basic.html' %}
+{% block title %}备份管理{% endblock %}
 	<div class="jumbotron">
-	  <h1 class="display-4">备份列表 | 当前：</h1>
-	  <hr class="my-4">
-<div class="alert alert-info alert-dismissible fade show" role="alert">
-   <strong>Heads up!</strong> This alert needs your attention, but it's not super important.
-   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-   <span aria-hidden="true">&times;</span>
-   </button>
-</div>
+        {% block jumbotron %}
+	  <h1 class="display-4">备份列表 | 当前：{{ gname }}</h1>
+        {% endblock %}
+    {% block content %}
+<ul class="list-inline">
+		<li class="list-inline-item">
+		  <button type="button" data-toggle="modal" data-target="#waittip" class="btn btn-dark" onclick="location.href='{{ url_for('api.backup_list', cmdtype='make', gname=gname, path='None') }}'">备份当前游戏</button>
+		</li>
+		</ul>
+         <p>*恢复备份操作将会：1：停止并备份当前游戏进度。2：恢复对应游戏存档并重启游戏服务。</p>
 <table class="table table-striped">
   <thead>
     <tr>
-      <th scope="col">#</th>
-      <th scope="col">原文件名</th>
       <th scope="col">备份时间</th>
       <th scope="col">操作</th>
     </tr>
   </thead>
   <tbody>
+  {% if backups %}
+  {% for i in backups %}
     <tr>
-      <th scope="row">1</th>
-	<td>Mark</td>
-      <td>Otto</td>
+      <td>{{ i['ctime'] }}</td>
       <td><div class="btn-toolbar" role="toolbar">
         <div class="btn-group mr-2" role="group">
-          <button type="button" class="btn btn-success">恢复备份</button>
-          <button type="button" class="btn btn-danger">删除备份</button>
-          <button type="button" class="btn btn-warning">申请恢复备份</button>
+            {% if userlevel >= 3 %}
+          <button type="button" data-toggle="modal" data-target="#waittip" class="btn btn-success" onclick="location.href='{{ url_for('api.backup_list', cmdtype='restore', gname=gname, path=i['path']) }}'">恢复备份</button>
+          <button type="button" data-toggle="modal" data-target="#waittip" class="btn btn-danger" onclick="location.href='{{ url_for('api.backup_list', cmdtype='delete', gname=gname, path=i['path']) }}'">删除备份</button>
+            {% endif %}
+        {% if userlevel <= 2 %}
+          <button type="button" data-toggle="modal" data-target="#waittip" class="btn btn-warning disabled" title="暂不支持" onclick="location.href='{{ url_for('api.backup_list', cmdtype='apply', gname=gname, path=i['path']) }}'">申请恢复备份</button>
+        {% endif %}
         </div>
       </div>
      </td>
     </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-    </tr>
+  {% endfor %}
+  {% endif %}
   </tbody>
 </table>
   </div>
-</div>
-<script src="../static/js/jquery-3.3.1.min.js"></script>
-<script src="../static/js/popper.min.js"></script>
-<script src="../static/js/bootstrap-4.3.1.js"></script>
-</body>
-</html>
+{% endblock %}

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3.7
 # from server_side.models.model import *
+# from server_side.models.db import *
+from models.db import *
 from models.model import *
 
 
@@ -59,19 +61,14 @@ def execute_cmds():
         elif str(dataList[0]) == 'smng':
             """
             commands that get server infos, make server a log, backup a game server dir.
-            The cmd string like : 'smng@server_infos:dsls@userlevel'
+            The cmd string like : 'smng@param:value@userlevel'
             """
             paramList = dataList[1].split(':')
             if paramList[0] == 'server_infos' and int(dataList[2]) >= 1:
-                print(paramList[1])
                 info_ = AdvanceServerManager(callwhich=paramList[1]).return_infos()
                 info = ''
                 for i in info_:
                     info += f'{i}@'
-            elif paramList[0] == 'server_log_dir' and int(dataList[2]) >= 3:
-                info = ServerLogResolve().get_server_log()[0]
-            elif paramList[0] == 'backup_servers' and int(dataList[2]) >= 2:
-                info = AdvanceServerManager().backup_dst_server()
             else:
                 info = 'Invalid command or Authority.'
 
@@ -133,27 +130,79 @@ def execute_cmds():
                 info = f'{info_[1]}!!{info_[0]}'
 
             elif paramList[0] == 'add_mod':
-                pass
+                """
+                value string should be like: 'gname#mod_string_split_by_space'
+                """
+                paramListValue = paramList[1].split('#')
+                info = ModManager(server_base_dir=paramListValue[0], mod_list=paramListValue[1]).add_mod()
 
-        elif str(dataList) == 'logs':
+            elif paramList[0] == 'delete_mod':
+                """
+                value string should be like: 'gname#mod_string_split_by_space'
+                """
+                paramListValue = paramList[1].split('#')
+                info = ModManager(server_base_dir=paramListValue[0], mod_list=paramListValue[1]).delete_mod()
+
+        elif str(dataList[0]) == 'logs':
             """
             Command string should be like: 'logs@param:value@userlevel'
             """
             paramList = dataList[1].split(':')
+            if paramList[0] == '':
+                pass
 
+            elif paramList[0] == 'server_log_dir' and int(dataList[2]) >= 3:
+                info = ServerLogResolve().get_server_log()[0]
+
+        elif str(dataList[0]) == 'backup':
+            """
+            backup manager.
+            The cmd string like : 'backup@param^^values@userlevel'
+            """
+            paramList = dataList[1].split('^^')
+            if paramList[0] == 'make':
+                """
+                values string should be like: 'gname'. 
+                """
+                info = AdvanceServerManager(server_base_dir=paramList[1]).backup_dst_server()
+            elif paramList[0] == 'delete':
+                """
+                values string should be like: 'gname#backup_name'.
+                """
+                mixValue = paramList[1].split('#')
+                info = AdvanceServerManager(server_base_dir=mixValue[0], target_bakcup_dir=mixValue[1]).delete_backup()
+            elif paramList[0] == 'list':
+                """
+                values string should be like 'gname'
+                """
+                info = AdvanceServerManager(server_base_dir=paramList[1]).get_backup_dir_list()
+            elif paramList[0] == 'restore':
+                """
+                value string should be like 'gname#the_dir_to_restore'
+                """
+                mixValue = paramList[1].split('#')
+                info = DstServerCreator(from_new_backup='backup', server_base_dir=mixValue[0],
+                                        from_backup_dir=mixValue[1], if_start_right_now=True
+                                        ).create_from_backups()
 
         elif str(dataList[0]) == 'create_initial':
             """
             create a new server container or initial a existed one.
             """
-            paramList = dataList[1]
-            if paramList == 'create':
+            paramList = dataList[1].split(':')
+            if paramList[0] == 'create':
                 """
                 when create, the command should be like:
                 'create_initial@create:servername^world_set_string^mod_set_string^cluster.ini_set^master_port^caves_port^
                 userlevel'
                 """
                 pass
+            elif paramList[0] == 'initial':
+                """
+                command should be like: 'create_initial@initial:gname@userlevel'
+                """
+                info = DstServerCreator(from_new_backup='new', server_base_dir=paramList[1]
+                                        ).initial_server()
 
         else:
             info = 'Invalid command or Authority.'

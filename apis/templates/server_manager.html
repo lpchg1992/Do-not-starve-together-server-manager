@@ -4,50 +4,51 @@
 	  <h1 class="display-4">管理 | 当前：{{ gname }}</h1>
 	  {% endblock %}
     {% block content %}
-    {% if userlevel >= 2 %}
 	<p class="lead text-lg-left">游戏用户权限管理</p>
 	<ul class="list-inline">
+        {% if userlevel >= 3 %}
 		<li class="list-inline-item">
-		  <a type="button" class="btn btn-dark" href="{{ url_for('api.game_user_auth_list', cls_='adminlist', gname=name, gid=id) }}">管理员名单</a>
+		  <a type="button" class="btn btn-dark" href="{{ url_for('api.game_user_auth_list', cls_='adminlist', gname=gname, gid=gid) }}">管理员名单</a>
 		</li>
 		<li class="list-inline-item">
-		  <a type="button" class="btn btn-dark" href="{{ url_for('api.game_user_auth_list', cls_='blocklist', gname=name, gid=id) }}">黑名单</a>
+		  <a type="button" class="btn btn-dark" href="{{ url_for('api.game_user_auth_list', cls_='blocklist', gname=gname, gid=gid) }}">黑名单</a>
 		</li>
+            {% endif %}
+    {% if userlevel >= 1 %}
 		<li class="list-inline-item">
-		  <a type="button" class="btn btn-dark" href="{{ url_for('api.game_user_auth_list', cls_='whitelist', gname=name, gid=id) }}">白名单</a>
+		  <a type="button" class="btn btn-dark" href="{{ url_for('api.game_user_auth_list', cls_='whitelist', gname=gname, gid=gid) }}">白名单</a>
 		</li>
+    {% endif %}
 	</ul>
-        {% endif %}
 	<p class="lead text-lg-left">游戏基础管理</p>
 	<ul class="list-inline">
 		<li class="list-inline-item">
-		  <button type="button" class="btn btn-dark">游戏运行报告</button>
+		  <a type="button" class="btn btn-dark disabled" href="#">游戏运行报告</a>
 		</li>
         {% if userlevel >= 2 %}
 		<li class="list-inline-item">
-		  <button type="button" class="btn btn-dark">备份游戏</button>
-		</li>
-		<li class="list-inline-item">
-		  <a type="button" class="btn btn-dark" href="{{ url_for('api.server_mod_manager', gname=gname, gid=gid)}}">添加Mod</a>
+		  <a type="button" class="btn btn-dark" href="{{ url_for('api.server_mod_manager', gname=gname, gid=gid)}}">游戏Mod管理</a>
 		</li>
 	</ul>
         {% endif %}
-        {% if userlevel >= 3 %}
+{% if userlevel >= 2 %}
 	<p class="lead text-lg-left">高级管理</p>
+    <p>*初始化服务器：会保留现有设置，备份后删除所有记录并重启。</p>
+        {% endif %}
 	<ul class="list-inline">
+    {% if userlevel >= 2 %}
 		<li class="list-inline-item">
-		  <button type="button" class="btn btn-dark">恢复游戏备份</button>
+		  <a type="button" class="btn btn-dark" href="{{ url_for('api.backup_list', gname=gname, cmdtype='None', path='None') }}">备份管理</a>
+		</li>
+    {% endif %}
+        {% if userlevel >= 3 %}
+            <li class="list-inline-item">
+		  <a type="button" class="btn btn-dark disabled" href="#">日志管理</a>
 		</li>
 		<li class="list-inline-item">
-		  <button type="button" class="btn btn-dark">初始化服务器</button>
+		  <button type="button" data-toggle="modal" data-target="#waittip" class="btn btn-danger" onclick="location.href='{{ url_for('api.create_initial', gname=gname, gid=gid, cmdtype='initial') }}'">初始化服务器</button>
 		</li>
-		<li class="list-inline-item">
-		  <a type="button" class="btn btn-dark" href="#">日志管理</a>
-		</li>
-		<li class="list-inline-item">
-		  <button type="button" disabled class="btn btn-dark" data-toggle="tooltip" data-placement="top" title="暂不支持">删除Mod</button>
-		</li>
+    {% endif %}
 	</ul>
-     {% endif %}
   </div>
 {% endblock %}

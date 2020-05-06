@@ -12,7 +12,7 @@ import ssl
 from socket import socket, AF_INET, SOCK_STREAM
 from models.db import commit_sql, get_db_dict
 # from server_side.models.db import commit_sql, get_db_dict
-from flask import session
+# from flask import session
 
 def generate_random():
     """
@@ -83,7 +83,7 @@ def remove_file_dir(dir_):
             os.remove(i)
             y += 1
         elif os.path.isdir(i):
-            os.rmdir(i)
+            shutil.rmtree(i)
             y += 1
         else:
             x += 1
@@ -160,7 +160,8 @@ class AdvanceServerManager:
                  usergameidclass='',
                  usergameid='',
                  cluster_need_to_change='',
-                 server_base_dir='DoNotStarveTogether'
+                 server_base_dir='DoNotStarveTogether',
+                 target_bakcup_dir=''
                  ):
         """
         :param server_base_dir: equals to the name of server name.
@@ -172,6 +173,7 @@ class AdvanceServerManager:
         :param until: a datetime object. the end of the time of a evnet
         :param targetserverid: a target docker container id.
         :param callwhich: select a list to return. dsl=all container objects of dst server. dsls=all container id strings of dst server. dsle dslr dslse dslsr
+        :param target_bakcup_dir: a back up dir that need to be handled.
         :param serverstatus: describe the statue of the server. None equals all server, True equals running server, False equals exited server.
         """
         self.client = docker.from_env()
@@ -208,6 +210,7 @@ class AdvanceServerManager:
         self.backupDirPattern = 'Cluster_1\+\d{4}\-\d{2}-\d{2}\+\d{2}\:\d{2}\:\d{2}\.\d*'
         self.templatesDir = '/root/dsttemplates'
         self.clusterBaseDir = f'{self.baseDir}/Cluster_1'
+        self.backupDir = f'{self.baseDir}/backup'
         self.serverStatus = serverstatus
         self.callWhich = callwhich
         self.targetServerId = targetserverid
@@ -216,6 +219,7 @@ class AdvanceServerManager:
         self.userGameId = usergameid
         self.userGameIdClass = usergameidclass
         self.clusterNeedToChange = cluster_need_to_change
+        self.targetBackupDir = target_bakcup_dir
 
     def return_infos(self):
         """
@@ -248,7 +252,7 @@ class AdvanceServerManager:
             info = 'Start server success!'
         else:
             sList = docker_id_to_obj(self.targetServerId)
-            if sList:
+            if sList and sList.status == 'exited':
                 sList.start()
                 info = 'Start server success!'
             else:
@@ -267,7 +271,7 @@ class AdvanceServerManager:
             info = 'Stop server success!'
         else:
             sList = docker_id_to_obj(self.targetServerId)
-            if sList:
+            if sList and sList.status == 'running':
                 sList.stop()
                 info = 'Stop server success!'
             else:
@@ -279,39 +283,65 @@ class AdvanceServerManager:
         back up server files only when servers are stopped.
         :return:
         """
+        # make sure that the backup dir existed.
+        if not os.path.exists(self.backupDir):
+            os.makedirs(self.backupDir)
         fileDir = self.baseDir + '/Cluster_1'
         dateStr_ = f'{datetime.datetime.now()}'
         dateStr__ = dateStr_.split(' ')
         dateStr = dateStr__[0] + '+' + dateStr__[1]
-        targetDir = f"{self.baseDir}/Cluster_1+{dateStr}"
+        targetDir = f"{self.backupDir}/Cluster_1+{dateStr}"
         if not self.dSLR:
-            shutil.copytree(fileDir, targetDir)
-            info = targetDir
+            if os.path.exists(fileDir) and not os.path.exists(targetDir):
+                shutil.copytree(fileDir, targetDir)
+                time_ = f'{datetime.datetime.now()}'.split('.')[0]
+                info = f'backup on {time_} successfully.'
+            else:
+                info = 'Invalid dir path.'
         else:
-            info = "Can't backup running server! You may stop servers and try again!"
+            info = "Can't backup when there are running servers! You may stop servers and try again!"
+        return info
+
+    def delete_backup(self):
+        """
+        delete a certain backup dir by self.targetBackupDir.
+        :return: a result.
+        """
+        if os.path.isdir(self.targetBackupDir):
+            shutil.rmtree(self.targetBackupDir)
+            info = 'Delete the backup success!'
+        else:
+            info = 'No such backup file!'
         return info
 
     def get_backup_dir_list(self):
         """
         Get a list of backup dirs by create time in DES order.
-        :return: a result.
+        :return: dir path and its created time strings split by '!!'.
         """
-        dirGenerator = os.walk(self.baseDir)
-        dirDict = {}
-        for root, dirs, files in dirGenerator:
-            for i in dirs:
-                if re.match(self.backupDirPattern, i):
-                    path_ = os.path.join(root, i)
-                    dirDict[f'{os.path.getctime(path_)}'] = path_
-        # This is a generator.
-        keysG = dirDict.keys()
-        keysL = []
-        for i in keysG:
-            keysL.append(i)
-        keysL.sort(reverse=True)
-        dirListByTime = []
-        for i in keysL:
-            dirListByTime.append(dirDict[i])
+        if os.path.exists(self.backupDir):
+            dirGenerator = os.walk(self.backupDir)
+            dirDict = {}
+            for root, dirs, files in dirGenerator:
+                for i in dirs:
+                    if re.match(self.backupDirPattern, i):
+                        path_ = os.path.join(root, i)
+                        dirDict[f'{os.path.getctime(path_)}'] = path_
+            # This is a iterator.
+            keysG = dirDict.keys()
+            keysL = []
+            dirListByTime = ''
+            for i in keysG:
+                keysL.append(i)
+            keysL.sort(reverse=True)
+            for i in keysL:
+                """
+                dirDict[i]: the dir path; i: the dir created time.
+                """
+                infos = f'{dirDict[i]}##{i}'
+                dirListByTime += f'{infos}!!'
+        else:
+            dirListByTime = 'None'
 
         return dirListByTime
 
@@ -320,6 +350,7 @@ class AdvanceServerManager:
         change user game identity.
         :return: a result.
         """
+        info = None
         if self.userGameIdClass == 'adminlist':
             fileDir = self.baseDir + '/Cluster_1/adminlist.txt'
         elif self.userGameIdClass == 'whitelist':
@@ -507,7 +538,13 @@ class ServerLogResolve(AdvanceServerManager):
 
 
 class ModManager(AdvanceServerManager):
-    def __init__(self, mod_list='', mod_list_db='', mod_list_db_statue='', server_base_dir='DoNotStarveTogether'):
+    def __init__(self,
+                 mod_list='',
+                 mod_list_db='',
+                 mod_list_db_statue='',
+                 server_base_dir='DoNotStarveTogether',
+                 targetserverid=''
+                 ):
         """
         This Class is a mod manager.
         :param mod_list_db_statue: a string contains a mod's id and its statue that need to change.
@@ -516,7 +553,7 @@ class ModManager(AdvanceServerManager):
         :param mod_list_db: a string contains a mod's infos.
         It should be look like: 'modname&&modurl'
         """
-        super().__init__(server_base_dir=server_base_dir)
+        super().__init__(server_base_dir=server_base_dir, targetserverid=targetserverid)
         self.modLists = mod_list
         self.setUpFileDir = self.clusterBaseDir + '/mods/dedicated_server_mods_setup.lua'
         self.overridesFileDir = self.clusterBaseDir + '/Master/modoverrides.lua'
@@ -560,19 +597,27 @@ class ModManager(AdvanceServerManager):
                 setUpFileList = f.readlines()
             with open(self.overridesFileDir, 'r') as f:
                 overridesFileList = f.readlines()
+            if overridesFileList[0] != 'return{\n':
+                overridesFileList.insert(0, 'return{\n')
+            if overridesFileList[-1] != '}\n':
+                overridesFileList.append('}\n')
+            j = str(setUpFileList)
+            k = str(overridesFileList)
             for i in modList:
-                if i not in setUpFileList:
+                if i not in j:
                     newMod = f'ServerModSetup("{i}")\n'
                     setUpFileList.append(newMod)
-                if i not in overridesFileList:
+                if i not in k:
                     newMod = '  ["workshop-%s"]={enabled=true } ,\n' % i
                     overridesFileList.insert(-1, newMod)
             with open(self.setUpFileDir, 'w') as f:
                 for i in setUpFileList:
-                    f.write(i)
-            with open(self.overridesFileDir, 'w'):
+                    if bool(i):
+                        f.write(i)
+            with open(self.overridesFileDir, 'w') as f:
                 for i in overridesFileList:
-                    f.write(i)
+                    if bool(i):
+                        f.write(i)
             shutil.copyfile(self.overridesFileDir, caveDir)
             info = 'Change mod files Success!'
         else:
@@ -623,7 +668,7 @@ class ModManager(AdvanceServerManager):
                 ModLines += Line
             setMod = update_file_lines(self.setUpFileDir, ModPatterns, ModLines, 2)
             overMod = update_file_lines(self.overridesFileDir, ModPatterns, ModLines, 2)
-            info = {'set up file': setMod, 'overrides file': overMod}
+            info = f"set up file: {setMod}, overrides file: {overMod}"
         else:
             info = "Can't delete mod id when servers are running."
         return info
@@ -638,6 +683,8 @@ class ModManager(AdvanceServerManager):
         eMod = ''
         errorInfo = None
         id = baseList[1].split('=')[1]
+        if '&' in id:
+            id = id.split('&')[0]
         db = get_db_dict()
         db.execute('SELECT * FROM mods WHERE mod_id = %s', (id,))
         ifIn = db.fetchone()
@@ -700,7 +747,9 @@ class DstServerCreator(ModManager):
                  from_new_backup='new',
                  from_backup_dir=None,
                  if_start_right_now=False,
-                 world_need_to_change=''
+                 world_need_to_change='',
+                 server_base_dir='',
+                 targetserverid=''
                  ):
         """
         :param world_need_to_change: a string contains several params and its values split by space for worldgenoverrides file.
@@ -709,7 +758,7 @@ class DstServerCreator(ModManager):
         :param from_new_backup: create a new server or from a backup. new or backup.
         :param if_start_right_now: True or False.
         """
-        super().__init__()
+        super().__init__(server_base_dir=server_base_dir, targetserverid=targetserverid)
         self.worldOverrideTemplate = self.baseDir + ''
         self.fromNewBackup = from_new_backup
         self.fromBackupDir = from_backup_dir
@@ -735,24 +784,19 @@ class DstServerCreator(ModManager):
 
     def create_from_backups(self):
         """
-        Use a backup file to create a server. From the last one by default.
+        Restore a backup game server file.
         :return: a result.
         """
-        if self.fromBackupDir:
-            fromDir = self.fromBackupDir
-        else:
-            fromDir = self.get_backup_dir_list()[1]
-        if fromDir:
-            shutil.copytree(fromDir, self.clusterBaseDir)
+        if self.fromBackupDir and not os.path.exists(self.clusterBaseDir):
+            shutil.copytree(self.fromBackupDir, self.clusterBaseDir)
             if self.ifStartRightNow:
                 self.start_existed_server()
                 info = 'Created and started game server from backup.'
             else:
                 info = 'Created game server from backup. You may start the server now.'
+            return info
         else:
-            info = 'No valid dir path.'
-
-        return info
+            return 'Invalid dir path.'
 
     def set_world_config(self):
         """
@@ -781,19 +825,14 @@ class DstServerCreator(ModManager):
 
     def initial_server(self):
         """
-        Reconfigure all configs and start a server.
+        Initial a game server with the old configs.
         :return: a result.
         """
         if self.fromNewBackup == 'new':
-            world_config = self.set_world_config()
-            cluster_config = self.set_cluster_config()
-            mod_files = self.recreate_mod_file()
-            info = self.start_existed_server()
-            infoDict = {'World config set': world_config, 'Cluster.ini set': cluster_config,
-                        'Mod set': mod_files, 'Server start': info}
-            return infoDict
+            self.start_existed_server()
+            return 'initial server success!'
         else:
-            return 'Wrong initial value! from_new_backup must be new.'
+            return 'Wrong initial value!'
 
     def create_new_server(self):
         pass
