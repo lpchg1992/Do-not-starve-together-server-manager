@@ -181,8 +181,11 @@ def execute_cmds():
                 value string should be like 'gname#the_dir_to_restore'
                 """
                 mixValue = paramList[1].split('#')
+                ASM = AdvanceServerManager(server_base_dir=mixValue[0])
+                ASM.stop_existed_server()
+                ASM.backup_dst_server()
                 info = DstServerCreator(from_new_backup='backup', server_base_dir=mixValue[0],
-                                        from_backup_dir=mixValue[1], if_start_right_now=True
+                                        from_backup_dir=mixValue[1], if_start_right_now=False
                                         ).create_from_backups()
 
         elif str(dataList[0]) == 'create_initial':
@@ -201,6 +204,9 @@ def execute_cmds():
                 """
                 command should be like: 'create_initial@initial:gname@userlevel'
                 """
+                ASM = AdvanceServerManager(server_base_dir=paramList[1])
+                ASM.stop_existed_server()
+                ASM.backup_dst_server()
                 info = DstServerCreator(from_new_backup='new', server_base_dir=paramList[1]
                                         ).initial_server()
 

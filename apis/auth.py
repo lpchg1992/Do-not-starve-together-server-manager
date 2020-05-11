@@ -21,7 +21,9 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        inviteCode = str(request.form['inviteCode'])
+        inviteCode = str(request.form['invitecode'])
+        kuCode = request.form['kucode']
+        steamNickNname = request.form['steamnickname']
         db = get_db_dict()
         db.execute(
             'SELECT id FROM user WHERE username = %s', (username,)
@@ -47,13 +49,13 @@ def register():
         if error is None:
             lv_ = inviteCode.split('+')
             lv = lv_[-1]
-            commit_sql('INSERT INTO user (username, password, level) VALUES (%s,%s,%s)',
-                       (username, generate_password_hash(password), lv,))
+            commit_sql('INSERT INTO user (username, password, level, kucode, steamnickname) VALUES (%s,%s,%s,%s,%s)',
+                       (username, generate_password_hash(password), lv, kuCode, steamNickNname,))
             commit_sql('UPDATE invite_code SET used_by = %s, used = %s WHERE code = %s', (username, 1, inviteCode))
             error = 'Success!'
         flash(error)
 
-    return render_template('auth/register.html')
+    return redirect(url_for('index'))
 
 
 @bp.route('/login', methods=('GET', 'POST'))

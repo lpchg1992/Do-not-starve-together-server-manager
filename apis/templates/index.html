@@ -32,23 +32,22 @@
     <div class="collapse multi-collapse" id="multiCollapseExample2">
       <div class="card card-body">
        <p class="lead text-center ">欢迎注册！经常一起玩游戏即可获取注册码。</p>
-    <form method="post">
-        <input id="whichr" name="whichr" hidden value="r">
+    <form id="form2" action="{{ url_for('auth.register') }}" method="post">
 		<div class="form-group">
-	    <label for="exampleInputEmail2">邀请码</label>
-	    <input type="email" class="form-control" id="exampleInputEmail2" aria-describedby="emailHelp" placeholder="邀请码">
+	    <label for="invitecode">邀请码</label>
+	    <input class="form-control" id="invitecode" name="invitecode" placeholder="邀请码" required>
       </div>
 	  <div class="form-group">
-	    <label for="exampleInputEmail2">用户名</label>
-	    <input type="email" class="form-control" id="exampleInputEmail2" aria-describedby="emailHelp" placeholder="用户名">
-          <label for="username">KU_码</label>
+	    <label for="username">用户名</label>
+	    <input class="form-control" id="username" name="username" placeholder="用户名" required>
+          <label for="kucode">KU_码</label>
 	    <input class="form-control" id="kucode" name="kucode" placeholder="方便增加白名单，管理员" required>
-          <label for="username">steam昵称</label>
+          <label for="steamnickname">steam昵称</label>
 	    <input class="form-control" id="steamnickname" name="steamnickname" placeholder="方便沟通，请原样填写" required>
       </div>
 	  <div class="form-group">
-	    <label for="exampleInputPassword1">密码</label>
-	    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="密码">
+	    <label for="password">密码</label>
+	    <input type="password" class="form-control" id="password" name="password" placeholder="密码" required>
     </div>
 		<p class="text-center">
       <button type="submit" class="btn btn-light">注册</button>

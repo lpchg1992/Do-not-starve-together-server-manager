@@ -286,7 +286,7 @@ class AdvanceServerManager:
         # make sure that the backup dir existed.
         if not os.path.exists(self.backupDir):
             os.makedirs(self.backupDir)
-        fileDir = self.baseDir + '/Cluster_1'
+        fileDir = self.clusterBaseDir
         dateStr_ = f'{datetime.datetime.now()}'
         dateStr__ = dateStr_.split(' ')
         dateStr = dateStr__[0] + '+' + dateStr__[1]
@@ -765,38 +765,25 @@ class DstServerCreator(ModManager):
         self.ifStartRightNow = if_start_right_now
         self.worldNeedToChange = world_need_to_change
 
-        if self.fromNewBackup == 'new':
-            if self.dSLR:
-                self.stop_existed_server()
-            self.backup_dst_server()
-            removeDir = f'{self.clusterBaseDir}/Master/save {self.clusterBaseDir}/Master/backup ' \
-                        f'{self.clusterBaseDir}/Caves/save {self.clusterBaseDir}/Caves/backup ' \
-                        f'{self.clusterBaseDir}/Master/server_chat_log.txt {self.clusterBaseDir}/Master/server_log.txt ' \
-                        f'{self.clusterBaseDir}/Caves/server_chat_log.txt {self.clusterBaseDir}/Caves/server_log.txt'
-            remove_file_dir(removeDir)
-        elif self.fromNewBackup == 'backup':
-            if self.dSLR:
-                self.stop_existed_server()
-            self.backup_dst_server()
-            remove_file_dir(self.clusterBaseDir)
-        else:
-            raise ValueError('The value of from_new_backup can just be a string of new or backup!')
-
     def create_from_backups(self):
         """
         Restore a backup game server file.
         :return: a result.
         """
-        if self.fromBackupDir and not os.path.exists(self.clusterBaseDir):
-            shutil.copytree(self.fromBackupDir, self.clusterBaseDir)
-            if self.ifStartRightNow:
-                self.start_existed_server()
-                info = 'Created and started game server from backup.'
+        if self.fromNewBackup == 'backup' and os.path.exists(self.clusterBaseDir):
+            remove_file_dir(self.clusterBaseDir)
+            if os.path.exists(self.fromBackupDir) and not os.path.exists(self.clusterBaseDir):
+                shutil.copytree(self.fromBackupDir, self.clusterBaseDir)
+                if self.ifStartRightNow:
+                    self.start_existed_server()
+                    info = 'Created and started game server from backup.'
+                else:
+                    info = 'Created game server from backup. You may start the server now.'
+                return info
             else:
-                info = 'Created game server from backup. You may start the server now.'
-            return info
+                return 'Invalid dir path.'
         else:
-            return 'Invalid dir path.'
+            return 'Invalid initial value!'
 
     def set_world_config(self):
         """
@@ -829,6 +816,11 @@ class DstServerCreator(ModManager):
         :return: a result.
         """
         if self.fromNewBackup == 'new':
+            removeDir = f'{self.clusterBaseDir}/Master/save {self.clusterBaseDir}/Master/backup ' \
+                        f'{self.clusterBaseDir}/Caves/save {self.clusterBaseDir}/Caves/backup ' \
+                        f'{self.clusterBaseDir}/Master/server_chat_log.txt {self.clusterBaseDir}/Master/server_log.txt ' \
+                        f'{self.clusterBaseDir}/Caves/server_chat_log.txt {self.clusterBaseDir}/Caves/server_log.txt'
+            remove_file_dir(removeDir)
             self.start_existed_server()
             return 'initial server success!'
         else:
